@@ -73,27 +73,27 @@ if [[ $BUILD_FAILED -eq 1 && $SWIFT_SIGNAL_FAILED -gt 0 || ( $BUILD_FAILED -eq 0
   grep -e "fatal: \[" -e "failed: \[" -e "msg: " -e "\.\.\.ignoring" -e "stderr: " -e "stdout: " -e "OSError: " -e "UndefinedError: " -e ", W:" -e ", E:" -e "PLAY" -e " Entity:" -e " Check:" -e " Alarm:" runcmd-bash.log deploy.sh.log
 fi
 
-BUILD_DELETED=1
-echo "===================================================="
-heat stack-delete $STACK_NAME
+#BUILD_DELETED=1
+#echo "===================================================="
+#heat stack-delete $STACK_NAME
 
-until [[ $BUILD_DELETED -eq 0 ]]; do
-  sleep 30
-  STACK_STATUS=`heat stack-list | awk '/ '$STACK_NAME' / { print $6 }'`
-  BUILD_DELETED=`heat stack-list | awk '/ '$STACK_NAME' / { print $6 }' | wc -l`
-  echo "===================================================="
-  echo "Stack Status:        $STACK_STATUS"
-  echo "Build Deleted:       $BUILD_DELETED"
-  if [[ "$STACK_STATUS" != 'DELETE_IN_PROGRESS' ]]; then
-    if [[ "$STACK_STATUS" == 'DELETE_FAILED' ]]; then
-      NETWORK_ID=`heat resource-list $STACK_NAME | awk '/ OS::Neutron::Net / { print $4 }'`
-      for PORT_ID in `rack networks port list --network-id $NETWORK_ID --fields id --no-header`; do
-        rack networks port delete --id $PORT_ID
-        sleep 20
-      done
-    fi
-    heat stack-delete $STACK_NAME
-  fi
-done
+#until [[ $BUILD_DELETED -eq 0 ]]; do
+#  sleep 30
+#  STACK_STATUS=`heat stack-list | awk '/ '$STACK_NAME' / { print $6 }'`
+#  BUILD_DELETED=`heat stack-list | awk '/ '$STACK_NAME' / { print $6 }' | wc -l`
+#  echo "===================================================="
+#  echo "Stack Status:        $STACK_STATUS"
+#  echo "Build Deleted:       $BUILD_DELETED"
+#  if [[ "$STACK_STATUS" != 'DELETE_IN_PROGRESS' ]]; then
+#    if [[ "$STACK_STATUS" == 'DELETE_FAILED' ]]; then
+#      NETWORK_ID=`heat resource-list $STACK_NAME | awk '/ OS::Neutron::Net / { print $4 }'`
+#      for PORT_ID in `rack networks port list --network-id $NETWORK_ID --fields id --no-header`; do
+#        rack networks port delete --id $PORT_ID
+#        sleep 20
+#      done
+#    fi
+#    heat stack-delete $STACK_NAME
+#  fi
+#done
 
 exit $BUILD_FAILED
